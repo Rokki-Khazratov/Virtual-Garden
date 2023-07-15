@@ -2,31 +2,23 @@ from rest_framework import generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-# from django.http import Http404
 from django.shortcuts import get_object_or_404
+# from django.http import Http404
 
 from apps.plants.models import Plants,UserProfile
-# from .serializers import ProductSerializer
-
-# class ProductListAPIView(generics.ListAPIView):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-#     pagination_class = LimitOffsetPagination
-
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
-#         category_id = self.request.query_params.get('category')
-#         if category_id:
-#             queryset = queryset.filter(category_id=category_id)
-#         return queryset.order_by('name')
-
-# product_list_view = ProductListAPIView.as_view()
+from .serializers import PlantSerializer
 
 
 
-# class ProductDetailAPIView(generics.RetrieveAPIView):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
+class PlantListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Plants.objects.all()
+    serializer_class = PlantSerializer
+
+plant_list_create_view = PlantListCreateAPIView.as_view()
+
+# class PlantDetailAPIView(generics.RetrieveAPIView):
+#     queryset = Plants.objects.all()
+#     serializer_class = PlantSerializer
 
 #     def preform_create(self, serizlizer):
 #         title = serizlizer.validated_data.get('title')
@@ -35,30 +27,25 @@ from apps.plants.models import Plants,UserProfile
 #             content = title
 #         serizlizer.save(content = content)
 
-# product_detail_view = ProductDetailAPIView.as_view()
+# plant_detail_view = PlantDetailAPIView.as_view()
 
-# class ProductListCreateAPIView(generics.ListCreateAPIView):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-
-# product_list_create_view = ProductListCreateAPIView.as_view()
 
 
 # @api_view(['GET', 'POST'])
-# def product_alt_view(request, pk=None, *args, **kwargs):
+# def plant_alt_view(request, pk=None, *args, **kwargs):
 #     method = request.method  
 
 #     if method == "GET":
 #         if pk is not None:
-#             obj = get_object_or_404(Product, pk=pk)
-#             data = ProductSerializer(obj, many=False).data
+#             obj = get_object_or_404(Plant, pk=pk)
+#             data = PlantSerializer(obj, many=False).data
 #             return Response(data)
-#         queryset = Product.objects.all() 
-#         data = ProductSerializer(queryset, many=True).data
+#         queryset = Plants.objects.all() 
+#         data = PlantSerializer(queryset, many=True).data
 #         return Response(data)
 
 #     if method == "POST":
-#         serializer = ProductSerializer(data=request.data)
+#         serializer = PlantSerializer(data=request.data)
 #         if serializer.is_valid(raise_exception=True):
 #             title = serializer.validated_data.get('title')
 #             content = serializer.validated_data.get('content') or None
