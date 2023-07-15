@@ -27,6 +27,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'apps.plants',
     'apps.api',
+    'rest_framework',
+
 
 ]
 
