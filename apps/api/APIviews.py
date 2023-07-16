@@ -16,18 +16,33 @@ class PlantListCreateAPIView(generics.ListCreateAPIView):
 
 plant_list_create_view = PlantListCreateAPIView.as_view()
 
-# class PlantDetailAPIView(generics.RetrieveAPIView):
-#     queryset = Plants.objects.all()
-#     serializer_class = PlantSerializer
+class PlantDetailAPIView(generics.RetrieveAPIView):
+    queryset = Plants.objects.all()
+    serializer_class = PlantSerializer
+    lookup_field = 'pk'
 
-#     def preform_create(self, serizlizer):
-#         title = serizlizer.validated_data.get('title')
-#         content = serizlizer.validated_data.get('content')
-#         if content is None:
-#             content = title
-#         serizlizer.save(content = content)
+    def perform_create(self, serializer):
+        name = serializer.validated_data.get('name')
+        info = serializer.validated_data.get('info')
+        if info is None:
+            info = name
+        serializer.save(info=info)
 
-# plant_detail_view = PlantDetailAPIView.as_view()
+plant_detail_view = PlantDetailAPIView.as_view()
+
+class PlantUpdateAPIView(generics.UpdateAPIView):
+    queryset = Plants.objects.all()
+    serializer_class = PlantSerializer
+    lookup_field = 'pk'  # Set the lookup field to 'pk'
+
+plant_update_view = PlantUpdateAPIView.as_view()
+
+class PlantDestroyAPIView(generics.DestroyAPIView):
+    queryset = Plants.objects.all()
+    serializer_class = PlantSerializer
+    lookup_field = 'pk'  # Set the lookup field to 'pk'
+
+plant_delete_view = PlantDestroyAPIView.as_view()
 
 
 
@@ -47,10 +62,10 @@ plant_list_create_view = PlantListCreateAPIView.as_view()
 #     if method == "POST":
 #         serializer = PlantSerializer(data=request.data)
 #         if serializer.is_valid(raise_exception=True):
-#             title = serializer.validated_data.get('title')
-#             content = serializer.validated_data.get('content') or None
-#             if content is None:
-#                 content = title
-#             serializer.save(content=content)
+#             name = serializer.validated_data.get('name')
+#             info = serializer.validated_data.get('info') or None
+#             if info is None:
+#                 info = name
+#             serializer.save(info=info)
 #             return Response(serializer.data)
 #         return Response({"invalid": "not good data"}, status=400)
