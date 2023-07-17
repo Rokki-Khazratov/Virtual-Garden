@@ -8,23 +8,25 @@ from django.shortcuts import get_object_or_404
 from apps.plants.models import Plants,UserProfile
 from .serializers import PlantSerializer,ProfileSerializer
 
-
 class ProfileListAPIView(generics.RetrieveAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = ProfileSerializer
     lookup_field = 'id'
 
-profile_list_views = ProfileListAPIView.as_view()
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        response_data = serializer.data
 
-class UserPlantsListAPIView(generics.ListAPIView):
-    serializer_class = PlantSerializer
+        include_plants = request.query_params.get('plants') == 'true'
+        if include_plants:
+            plants = instance.plants.all()
+            plant_serializer = PlantSerializer(plants, many=True, context={'request': request})
+            response_data = plant_serializer.data
 
-    def get_queryset(self):
-        user_id = self.kwargs['id']
-        return Plants.objects.filter(user_profiles__user_id=user_id)
-
-user_plats_list_views = UserPlantsListAPIView.as_view()
+        return Response(response_data)
     
+profile_list_view = ProfileListAPIView.as_view()
 
 
 class PlantListCreateAPIView(generics.ListCreateAPIView):
