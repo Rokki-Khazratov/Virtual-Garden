@@ -6,8 +6,18 @@ from django.shortcuts import get_object_or_404
 # from django.http import Http404
 
 from apps.plants.models import Plants,UserProfile
-from .serializers import PlantSerializer
+from .serializers import PlantSerializer,ProfileSerializer
 
+
+class ProfileListAPIView(generics.RetrieveAPIView):
+    queryset = UserProfile.objects.all()
+    serializer_class = ProfileSerializer
+    lookup_field = 'id'
+
+profile_list_views = ProfileListAPIView.as_view()
+
+
+    
 
 
 class PlantListCreateAPIView(generics.ListCreateAPIView):
