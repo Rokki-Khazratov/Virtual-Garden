@@ -16,7 +16,14 @@ class ProfileListAPIView(generics.RetrieveAPIView):
 
 profile_list_views = ProfileListAPIView.as_view()
 
+class UserPlantsListAPIView(generics.ListAPIView):
+    serializer_class = PlantSerializer
 
+    def get_queryset(self):
+        user_id = self.kwargs['id']
+        return Plants.objects.filter(user_profiles__user_id=user_id)
+
+user_plats_list_views = UserPlantsListAPIView.as_view()
     
 
 
