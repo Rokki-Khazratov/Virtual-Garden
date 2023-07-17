@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -62,6 +62,48 @@ class PlantDestroyAPIView(generics.DestroyAPIView):
     lookup_field = 'pk'  # Set the lookup field to 'pk'
 
 plant_delete_view = PlantDestroyAPIView.as_view()
+
+
+
+class UserProfileCartAddView(generics.CreateAPIView):
+    serializer_class = PlantSerializer
+
+    def create(self, request, *args, **kwargs):
+        user_id = kwargs['id']
+        try:
+            user_profile = UserProfile.objects.get(user_id=user_id)
+        except UserProfile.DoesNotExist:
+            return Response({'error': 'UserProfile not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        plant_id = request.data.get('plant_id')
+        try:
+            plant = Plants.objects.get(pk=plant_id)
+        except Plants.DoesNotExist:
+            return Response({'error': 'Plant not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        user_profile.cart.add(plant)
+        return Response({'message': 'Plant added to cart successfully.'}, status=status.HTTP_200_OK)
+
+
+class UserProfileCartDeleteView(generics.DestroyAPIView):
+    serializer_class = PlantSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        user_id = kwargs['id']
+        try:
+            user_profile = UserProfile.objects.get(user_id=user_id)
+        except UserProfile.DoesNotExist:
+            return Response({'error': 'UserProfile not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        plant_id = kwargs['plant_id']
+        try:
+            plant = Plants.objects.get(pk=plant_id)
+        except Plants.DoesNotExist:
+            return Response({'error': 'Plant not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        user_profile.cart.remove(plant)
+        return Response({'message': 'Plant removed from cart successfully.'}, status=status.HTTP_200_OK)
+
 
 
 

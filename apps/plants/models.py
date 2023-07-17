@@ -27,7 +27,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     username = models.SlugField(max_length=255, unique=True, null=False)
     plants = models.ManyToManyField(Plants, related_name='user_profiles', blank=True)
-    card = models.ManyToManyField(Plants, related_name='user_cards', blank=True)
+    cart = models.ManyToManyField(Plants, related_name='user_cards', blank=True)
 
     def __str__(self):
         return self.username
