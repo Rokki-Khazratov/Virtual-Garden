@@ -2,6 +2,7 @@ from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+
 from django.shortcuts import get_object_or_404
 # from django.http import Http404
 
@@ -27,6 +28,49 @@ class ProfileListAPIView(generics.RetrieveAPIView):
         return Response(response_data)
     
 profile_list_view = ProfileListAPIView.as_view()
+
+
+
+@api_view(['POST'])
+def add_to_cart(request, id):
+    try:
+        user_profile = UserProfile.objects.get(user_id=id)
+        print('first try test ')
+    except UserProfile.DoesNotExist:
+        return Response({'error': 'UserProfile not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    plant_id = request.data.get('plant_id')
+    print(plant_id)
+    try:
+        plant = Plants.objects.get(pk=plant_id)
+        print("second try test")
+    except Plants.DoesNotExist:
+        return Response({'error': 'Plant not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    user_profile.cart.add(plant)
+    return Response({'message': 'Plant added to cart successfully.'}, status=status.HTTP_200_OK)
+
+
+
+class UserProfileCartDeleteView(generics.DestroyAPIView):
+    serializer_class = PlantSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        user_id = kwargs['id']
+        try:
+            user_profile = UserProfile.objects.get(user_id=user_id)
+        except UserProfile.DoesNotExist:
+            return Response({'error': 'UserProfile not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        plant_id = kwargs['plant_id']
+        try:
+            plant = Plants.objects.get(pk=plant_id)
+        except Plants.DoesNotExist:
+            return Response({'error': 'Plant not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        user_profile.cart.remove(plant)
+        return Response({'message': 'Plant removed from cart successfully.'}, status=status.HTTP_200_OK)
+
 
 
 class PlantListCreateAPIView(generics.ListCreateAPIView):
@@ -62,71 +106,3 @@ class PlantDestroyAPIView(generics.DestroyAPIView):
     lookup_field = 'pk'  # Set the lookup field to 'pk'
 
 plant_delete_view = PlantDestroyAPIView.as_view()
-
-
-
-class UserProfileCartAddView(generics.CreateAPIView):
-    serializer_class = PlantSerializer
-
-    def create(self, request, *args, **kwargs):
-        user_id = kwargs['id']
-        try:
-            user_profile = UserProfile.objects.get(user_id=user_id)
-        except UserProfile.DoesNotExist:
-            return Response({'error': 'UserProfile not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-        plant_id = request.data.get('plant_id')
-        try:
-            plant = Plants.objects.get(pk=plant_id)
-        except Plants.DoesNotExist:
-            return Response({'error': 'Plant not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-        user_profile.cart.add(plant)
-        return Response({'message': 'Plant added to cart successfully.'}, status=status.HTTP_200_OK)
-
-
-class UserProfileCartDeleteView(generics.DestroyAPIView):
-    serializer_class = PlantSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        user_id = kwargs['id']
-        try:
-            user_profile = UserProfile.objects.get(user_id=user_id)
-        except UserProfile.DoesNotExist:
-            return Response({'error': 'UserProfile not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-        plant_id = kwargs['plant_id']
-        try:
-            plant = Plants.objects.get(pk=plant_id)
-        except Plants.DoesNotExist:
-            return Response({'error': 'Plant not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-        user_profile.cart.remove(plant)
-        return Response({'message': 'Plant removed from cart successfully.'}, status=status.HTTP_200_OK)
-
-
-
-
-# @api_view(['GET', 'POST'])
-# def plant_alt_view(request, pk=None, *args, **kwargs):
-#     method = request.method  
-
-#     if method == "GET":
-#         if pk is not None:
-#             obj = get_object_or_404(Plant, pk=pk)
-#             data = PlantSerializer(obj, many=False).data
-#             return Response(data)
-#         queryset = Plants.objects.all() 
-#         data = PlantSerializer(queryset, many=True).data
-#         return Response(data)
-
-#     if method == "POST":
-#         serializer = PlantSerializer(data=request.data)
-#         if serializer.is_valid(raise_exception=True):
-#             name = serializer.validated_data.get('name')
-#             info = serializer.validated_data.get('info') or None
-#             if info is None:
-#                 info = name
-#             serializer.save(info=info)
-#             return Response(serializer.data)
-#         return Response({"invalid": "not good data"}, status=400)

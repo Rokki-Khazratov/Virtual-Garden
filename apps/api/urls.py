@@ -10,7 +10,7 @@ urlpatterns = [
     path('user/<int:id>',APIviews.profile_list_view), # user json
     #? path = user/<int:id>?plants=true PLANTS IN USER.PLANTS json 
 
-    path('user/<int:id>/cart/add/', APIviews.UserProfileCartAddView.as_view(), name='add-to-cart'),
+    path('user/<int:id>/cart/add/', APIviews.add_to_cart, name='add-to-cart'),
     path('user/<int:id>/cart/delete/<int:plant_id>/', APIviews.UserProfileCartDeleteView.as_view(), name='remove-from-cart'),
 
 ]
